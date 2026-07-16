@@ -1,12 +1,6 @@
 name: deploy
 on: [push, workflow_dispatch]
 jobs:
-  say-hello:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: launchpad
-jobs:
   deploy-window: 
     steps:
       - run: npm clean-install
