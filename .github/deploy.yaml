@@ -1,8 +1,0 @@
-# .github/workflows/deploy.yaml
-name: deploy
-on: [push]
-jobs:
-  say-hello:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Ship it!"
