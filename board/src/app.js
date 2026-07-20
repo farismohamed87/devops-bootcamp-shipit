@@ -114,7 +114,7 @@ export function createServer({ port = 3000, token = null, operatorKey = null, pu
         race.join(m.callsign);
         raceDirty = true;
       } else if (m.t === 'progress' && ws.callsign && Number.isInteger(m.completed)) {
-        race.progress(ws.callsign, m.completed);
+        race.report(ws.callsign, m.completed, m.frac);
         raceDirty = true;
       }
     });

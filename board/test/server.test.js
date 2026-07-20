@@ -137,3 +137,22 @@ test('operator endpoints require the operator key when set', async () => {
     assert.equal((await postTo(port, '/api/view', { view: 'race' }, opHeader('op-key'))).status, 202);
   } finally { await app.close(); }
 });
+
+test('cockpit frac ripples into the race broadcast without advancing', async () => {
+  const app = createServer({ port: 0, token: null, operatorKey: 'op-key' });
+  const port = app.port;
+  try {
+    await post(port, ev);
+    const cockpit = await openClient(port);
+    await nextMsg(cockpit, (m) => m.t === 'roster');
+    cockpit.send(JSON.stringify({ t: 'join', callsign: 'octocat' }));
+    await postTo(port, '/api/race/start', { session: 'cicd3' }, opHeader('op-key'));
+    await nextMsg(cockpit, (m) => m.t === 'race' && m.phase === 'running');
+
+    cockpit.send(JSON.stringify({ t: 'progress', completed: 0, frac: 0.5 }));
+    const partial = await nextMsg(cockpit, (m) =>
+      m.t === 'race' && m.ships.some((s) => s.callsign === 'octocat' && s.frac === 0.5));
+    assert.equal(partial.ships.find((s) => s.callsign === 'octocat').completed, 0);
+    cockpit.close();
+  } finally { await app.close(); }
+});
