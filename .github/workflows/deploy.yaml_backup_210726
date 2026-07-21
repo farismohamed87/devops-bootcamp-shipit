@@ -1,15 +1,11 @@
 name: deploy
-#on: [push, workflow_dispatch]
-on:
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
+on: [push, workflow_dispatch]
 defaults:
   run:
     working-directory: launchpad
 
 jobs:
   test:
-    if: github.event.pull_request.merged == false   # tambah
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,7 +16,6 @@ jobs:
 
   deploy:
     needs: test
-    if: github.event.pull_request.merged == false   # tambah
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
