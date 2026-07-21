@@ -1,5 +1,4 @@
-name: deploy
-#on: [push, workflow_dispatch]
+name: cicd2
 on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
@@ -9,30 +8,34 @@ defaults:
 
 jobs:
   test:
-    if: always() && github.event.pull_request.merged == true   # tambah
+    if: github.event.pull_request.merged == false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        # Note: If your repository specifically requires version 7, change the @v4 above to @v7
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
       - run: npm clean-install
       - run: npm run test
-
+      - run: bash scripts/report.sh
+        env:
+          BOARD_URL: ${{ vars.BOARD_URL }}
+          SHIPIT_TOKEN: ${{ secrets.SHIPIT_TOKEN }}
   deploy:
     needs: test
-    if: github.event.pull_request.merged == false   # tambah
+    if: always() && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
       - run: npm clean-install
       - run: npm run build
+        env:
+          VITE_BOARD_URL: ${{ vars.BOARD_URL }}
+          VITE_CALLSIGN: ${{ github.actor }}
       - uses: actions/upload-pages-artifact@v5
         with:
           path: launchpad/dist
       - uses: actions/deploy-pages@v5
 
-## tambah di bawah sekali
 permissions:
   pages: write
   id-token: write
