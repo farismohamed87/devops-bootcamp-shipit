@@ -1,4 +1,4 @@
-name: cicd
+name: cicd2
 on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
