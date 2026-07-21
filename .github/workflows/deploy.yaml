@@ -9,7 +9,7 @@ defaults:
 
 jobs:
   test:
-    if: github.event.pull_request.merged == false   # tambah
+    if: always() && github.event.pull_request.merged == true   # tambah
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
