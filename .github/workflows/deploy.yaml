@@ -13,7 +13,10 @@ jobs:
         # Note: If your repository specifically requires version 7, change the @v4 above to @v7
       - run: npm clean-install
       - run: npm run test
-
+      - run: bash scripts/report.sh
+        env:
+          BOARD_URL: ${{ vars.BOARD_URL }}
+          SHIPIT_TOKEN: ${{ secrets.SHIPIT_TOKEN }}
   deploy:
     needs: test
     runs-on: ubuntu-latest
