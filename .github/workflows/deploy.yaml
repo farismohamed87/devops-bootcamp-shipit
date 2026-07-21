@@ -1,14 +1,14 @@
-name: deploy
-#on: [push, workflow_dispatch]
+name: cicd2
 on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
 defaults:
   run:
     working-directory: launchpad
+
 jobs:
   test:
-    if: always() && github.event.pull_request.merged == true   # tambah
+    if: github.event.pull_request.merged == false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -17,11 +17,11 @@ jobs:
       - run: npm run test
       - run: bash scripts/report.sh
         env:
-          VITE_BOARD_URL: ${{ vars.BOARD_URL }}
+          BOARD_URL: ${{ vars.BOARD_URL }}
           SHIPIT_TOKEN: ${{ secrets.SHIPIT_TOKEN }}
   deploy:
     needs: test
-    if: github.event.pull_request.merged == false   # tambah
+    if: always() && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -30,10 +30,12 @@ jobs:
       - run: npm run build
         env:
           VITE_BOARD_URL: ${{ vars.BOARD_URL }}
+          VITE_CALLSIGN: ${{ github.actor }}
       - uses: actions/upload-pages-artifact@v5
         with:
           path: launchpad/dist
       - uses: actions/deploy-pages@v5
+
 permissions:
   pages: write
   id-token: write
